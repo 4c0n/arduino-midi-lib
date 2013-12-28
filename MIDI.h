@@ -32,8 +32,14 @@ class MIDI {
 		bool handleMessage(byte status);
 		byte getNextByte();
 		void clearMessage();
-	public:
 		MIDI();
+		MIDI(MIDI const&);
+		void operator=(MIDI const&);
+	public:
+		static MIDI& getInstance() {
+			static MIDI instance;
+			return instance;
+		}
 		bool read();
 		bool read(int channel, bool sys);
 		void send(byte status, byte data1, byte data2);

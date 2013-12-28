@@ -5,23 +5,30 @@ MIDI::MIDI() {
 	Serial.begin(31250);
 }
 
+
 /**
  * read any kind of message
 **/
 bool MIDI::read() {
 	clearMessage();
+
 	if (Serial.available() > 0) {
 		byte sts = Serial.read();
 		return handleMessage(sts);
 	}
+
 	return false;
 }
 
+
 bool MIDI::read(int channel, bool sys) {
 	clearMessage();
+
 	if (Serial.available() > 0) {
 		byte sts = Serial.read();
+
 		if (sts > 0x7F && sts < 0xF0) { // channel bound messages
+
 			if (channel == getChannelFromStatus(sts)) {
 				return handleMessage(sts);
 			}
@@ -32,6 +39,7 @@ bool MIDI::read(int channel, bool sys) {
 	}
 	return false;
 }
+
 
 bool MIDI::handleMessage(byte status) {
 	int size = getMessageSize(status);
@@ -69,8 +77,10 @@ bool MIDI::handleMessage(byte status) {
 		case -1:
 		return false; // invalid status byte
 	}
+
 	return false; // shouldn't happen but here for the form
 }
+
 
 void MIDI::send(byte status, byte data1, byte data2) {
 	Serial.write(status);
@@ -78,34 +88,42 @@ void MIDI::send(byte status, byte data1, byte data2) {
 	Serial.write(data2);
 }
 
+
 void MIDI::send(byte status, byte data1) {
 	Serial.write(status);
 	Serial.write(data1);
 }
 
+
 void MIDI::send(byte status) {
 	Serial.write(status);
 }
+
 
 byte MIDI::getStatus() {
 	return msg.status;
 }
 
+
 byte MIDI::getData1() {
 	return msg.data1;
 }
+
 
 byte MIDI::getData2() {
 	return msg.data2;
 }
 
+
 unsigned int MIDI::getSize() {
 	return msg.size;
 }
 
+
 byte MIDI::getChannelFromStatus(byte status) {
 	return (status & 0x0F);
 }
+
 
 int MIDI::getMessageSize(byte status) {
 	if (status > 0xF5  || (status == 0xF0)) { // 1 byte msg
@@ -121,6 +139,7 @@ int MIDI::getMessageSize(byte status) {
 		return -1; // invalid/unsupported message
 	}
 }
+
 
 int MIDI::getType(byte status) {
 	if (status > 0xEF) {
@@ -150,6 +169,7 @@ int MIDI::getType(byte status) {
 	return -1; // invalid/unsupported message
 }
 
+
 byte MIDI::getNextByte() {
 	delayMicroseconds(325); // 325 TODO: 
 	//delay(5);
@@ -160,7 +180,8 @@ byte MIDI::getNextByte() {
 		//digitalWrite(13, LOW);
 		i--;
 	}
-											return Serial.read();
+
+	return Serial.read();
 }
 
 										void MIDI::clearMessage() {
