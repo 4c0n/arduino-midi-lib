@@ -5,6 +5,9 @@ MIDI::MIDI() {
 	Serial.begin(31250);
 }
 
+/**
+ * read any kind of message
+**/
 bool MIDI::read() {
 	clearMessage();
 	if (Serial.available() > 0) {
@@ -18,12 +21,12 @@ bool MIDI::read(int channel, bool sys) {
 	clearMessage();
 	if (Serial.available() > 0) {
 		byte sts = Serial.read();
-		if (sts > 0x7F && sts < 0xF0) {
+		if (sts > 0x7F && sts < 0xF0) { // channel bound messages
 			if (channel == getChannelFromStatus(sts)) {
 				return handleMessage(sts);
 			}
 		}	
-		else if (sts > 0xEF && sys) {
+		else if (sts > 0xEF && sys) { // non channel bound messages
 			return handleMessage(sts);
 		}		
 	}
@@ -96,7 +99,7 @@ byte MIDI::getData2() {
 	return msg.data2;
 }
 
-int MIDI::getSize() {
+unsigned int MIDI::getSize() {
 	return msg.size;
 }
 

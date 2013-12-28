@@ -2,6 +2,12 @@
 #define MIDI_h
 
 #include "Arduino.h"
+#include "NoteOnMessage.h"
+#include "NoteOffMessage.h"
+#include "ATPolyMessage.h"
+#include "ControlChangeMessage.h"
+#include "ProgramChangeMessage.h"
+#include "PitchBendMessage.h"
 
 #define NoteOff 0
 #define NoteOn 1
@@ -16,7 +22,8 @@ struct Midimsg {
 	byte status;
 	byte data1;
 	byte data2;
-	int size;
+	unsigned int size;
+	unsigned int type;
 };
 
 class MIDI {
@@ -35,10 +42,16 @@ class MIDI {
 		byte getStatus();
 		byte getData1();
 		byte getData2();
-		int getSize();
+		unsigned int getSize();
 		byte getChannelFromStatus(byte status);
 		int getMessageSize(byte status);
 		int getType(byte status);
+		NoteOnMessage getNoteOnMessage();
+		NoteOffMessage getNoteOffMessage();
+		ATPolyMessage getATPolyMessage();
+		ControlChangeMessage getControlChangeMessage();
+		ProgramChangeMessage getProgramChangeMessage();
+		PitchBendMessage getPitchBendMessage();
 };
 
 #endif
