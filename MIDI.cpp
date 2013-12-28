@@ -1,9 +1,7 @@
 #include "Arduino.h"
 #include "MIDI.h"
 
-MIDI::MIDI() { }
-
-void MIDI::begin() {
+MIDI::MIDI() {
 	Serial.begin(31250);
 }
 

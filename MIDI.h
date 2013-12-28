@@ -20,9 +20,13 @@ struct Midimsg {
 };
 
 class MIDI {
+	private:
+		Midimsg msg;
+		bool handleMessage(byte status);
+		byte getNextByte();
+		void clearMessage();
 	public:
 		MIDI();
-		void begin();
 		bool read();
 		bool read(int channel, bool sys);
 		void send(byte status, byte data1, byte data2);
@@ -35,11 +39,6 @@ class MIDI {
 		byte getChannelFromStatus(byte status);
 		int getMessageSize(byte status);
 		int getType(byte status);
-	private:
-		Midimsg msg;
-		bool handleMessage(byte status);
-		byte getNextByte();
-		void clearMessage();
 };
 
 #endif
