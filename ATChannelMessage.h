@@ -6,7 +6,7 @@
 #include "AbstractChannelMessage.h"
 #include "AbstractValueMessage.h"
 
-class ATChannelMessage_h : public AbstractMIDIMessage, public AbstractChannelMessage, public AbstractValueMessage {
+class ATChannelMessage : public AbstractMIDIMessage, public AbstractChannelMessage, public AbstractValueMessage {
 	public:
 		ATChannelMessage(byte status, byte data1) : AbstractMIDIMessage(status), AbstractChannelMessage(status), AbstractValueMessage(data1) {
 		}
