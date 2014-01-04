@@ -10,31 +10,31 @@ MIDI::MIDI() {
  * read any kind of message
 **/
 bool MIDI::read() {
-	clearMessage();
+	this->clearMessage();
 
 	if (Serial.available() > 0) {
 		byte sts = Serial.read();
-		return handleMessage(sts);
+		return this->handleMessage(sts);
 	}
 
 	return false;
 }
 
 
-bool MIDI::read(int channel, bool sys) {
-	clearMessage();
+bool MIDI::read(byte channel, bool sys) {
+	this->clearMessage();
 
 	if (Serial.available() > 0) {
 		byte sts = Serial.read();
 
 		if (sts > 0x7F && sts < 0xF0) { // channel bound messages
 
-			if (channel == getChannelFromStatus(sts)) {
-				return handleMessage(sts);
+			if (channel == this->getChannelFromStatus(sts)) {
+				return this->handleMessage(sts);
 			}
 		}	
 		else if (sts > 0xEF && sys) { // non channel bound messages
-			return handleMessage(sts);
+			return this->handleMessage(sts);
 		}		
 	}
 	return false;
@@ -42,33 +42,33 @@ bool MIDI::read(int channel, bool sys) {
 
 
 bool MIDI::handleMessage(byte status) {
-	int size = getMessageSize(status);
+	int size = this->getMessageSize(status);
 	switch (size) {
 		case 1: {
-			msg.status = status;
-			msg.size = size;
+			this->msg.status = status;
+			this->msg.size = size;
 		}
 		return true;
 		
 		case 2: {
-			byte dat1 = getNextByte();
+			byte dat1 = this->getNextByte();
 			if (dat1 != -1) {
-				msg.status = status;
-				msg.data1 = dat1;
-				msg.size = size;
+				this->msg.status = status;
+				this->msg.data1 = dat1;
+				this->msg.size = size;
 			}
 		}
 		return true;
 		
 		case 3: {
-			byte dat1 = getNextByte();
+			byte dat1 = this->getNextByte();
 			if (dat1 != -1) {
-				byte dat2 = getNextByte();
+				byte dat2 = this->getNextByte();
 				if (dat2 != -1) {
-					msg.status = status;
-					msg.data1 = dat1;
-					msg.data2 = dat2;
-					msg.size = size;
+					this->msg.status = status;
+					this->msg.data1 = dat1;
+					this->msg.data2 = dat2;
+					this->msg.size = size;
 				}
 			}
 		}
@@ -101,22 +101,22 @@ void MIDI::send(byte status) {
 
 
 byte MIDI::getStatus() {
-	return msg.status;
+	return this->msg.status;
 }
 
 
 byte MIDI::getData1() {
-	return msg.data1;
+	return this->msg.data1;
 }
 
 
 byte MIDI::getData2() {
-	return msg.data2;
+	return this->msg.data2;
 }
 
 
 unsigned int MIDI::getSize() {
-	return msg.size;
+	return this->msg.size;
 }
 
 
@@ -140,8 +140,7 @@ int MIDI::getMessageSize(byte status) {
 	}
 }
 
-
-int MIDI::getType(byte status) {
+message_t MIDI::getType(byte status) {
 	if (status > 0xEF) {
 		return System;
 	}
@@ -166,7 +165,7 @@ int MIDI::getType(byte status) {
 	else if (status > 0xDF && status < 0xF0) {
 		return PitchBend;
 	}
-	return -1; // invalid/unsupported message
+	return Unsupported; // invalid/unsupported message
 }
 
 
@@ -184,9 +183,70 @@ byte MIDI::getNextByte() {
 	return Serial.read();
 }
 
-										void MIDI::clearMessage() {
-	msg.status = 0;
-	msg.data1 = 0;
-	msg.data2 = 0;
-	msg.size = 0;
+
+void MIDI::clearMessage() {
+	this->msg.status = 0;
+	this->msg.data1 = 0;
+	this->msg.data2 = 0;
+	this->msg.size = 0;
+}
+
+
+NoteOnMessage * MIDI::getNoteOnMessage() {
+	if(this->msg.size > 0 && this->getType(this->msg.status) == NoteOn) {
+		return new NoteOnMessage(this->msg.status, this->msg.data1, this->msg.data2);
+	}
+
+	return NULL;
+}
+
+
+NoteOffMessage * MIDI::getNoteOffMessage() {
+	if(this->msg.size > 0 && this->getType(this->msg.status) == NoteOff) {
+		return new NoteOffMessage(this->msg.status, this->msg.data1, this->msg.data2);
+	}
+
+	return NULL;
+}
+
+
+ATPolyMessage * MIDI::getATPolyMessage() {
+	if(this->msg.size > 0 && this->getType(this->msg.status) == ATPoly) {
+		return new ATPolyMessage(this->msg.status, this->msg.data1, this->msg.data2);
+	}
+
+	return NULL;
+}
+
+
+ControlChangeMessage * MIDI::getControlChangeMessage() {
+	if(this->msg.size > 0 && this->getType(this->msg.status) == CC) {
+		return new ControlChangeMessage(this->msg.status, this->msg.data1, this->msg.data2);
+	}
+
+	return NULL;
+}
+
+ProgramChangeMessage * MIDI::getProgramChangeMessage() {
+	if(this->msg.size > 0 && this->getType(this->msg.status) == PC) {
+		return new ProgramChangeMessage(this->msg.status, this->msg.data1);
+	}
+	
+	return NULL;
+}
+
+PitchBendMessage * MIDI::getPitchBendMessage() {
+	if(this->msg.size > 0 && this->getType(this->msg.status) == PitchBend) {
+		return new PitchBendMessage(this->msg.status, this->msg.data1, this->msg.data2);
+	}
+	
+	return NULL;
+}
+
+ATChannelMessage * MIDI::getATChannelMessage() {
+	if(this->msg.size > 0 && this->getType(this->msg.status) == ATChannel) {
+		return new ATChannelMessage(this->msg.status, this->msg.data1);
+	}
+
+	return NULL;
 }

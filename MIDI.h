@@ -2,21 +2,28 @@
 #define MIDI_h
 
 #include "Arduino.h"
-#include "NoteOnMessage.h"
-#include "NoteOffMessage.h"
-#include "ATPolyMessage.h"
+#include "AbstractNoteMessage.h"
 #include "ControlChangeMessage.h"
 #include "ProgramChangeMessage.h"
 #include "PitchBendMessage.h"
+#include "ATChannelMessage.h"
 
-#define NoteOff 0
-#define NoteOn 1
-#define ATPoly 2
-#define CC 3
-#define PC 4
-#define ATChannel 5
-#define	PitchBend 6
-#define System 7
+typedef AbstractNoteMessage NoteOnMessage;
+typedef AbstractNoteMessage NoteOffMessage;
+typedef AbstractNoteMessage ATPolyMessage;
+
+enum message_t {
+	NoteOn,
+	NoteOff,
+	ATPoly,
+	CC,
+	PC,
+	ATChannel,
+	PitchBend,
+	System,
+	TimingClock,
+	Unsupported
+};
 
 struct Midimsg {
 	byte status;
@@ -41,7 +48,7 @@ class MIDI {
 			return instance;
 		}
 		bool read();
-		bool read(int channel, bool sys);
+		bool read(byte channel, bool sys);
 		void send(byte status, byte data1, byte data2);
 		void send(byte status, byte data1);
 		void send(byte status);
@@ -51,13 +58,14 @@ class MIDI {
 		unsigned int getSize();
 		byte getChannelFromStatus(byte status);
 		int getMessageSize(byte status);
-		int getType(byte status);
-		NoteOnMessage getNoteOnMessage();
-		NoteOffMessage getNoteOffMessage();
-		ATPolyMessage getATPolyMessage();
-		ControlChangeMessage getControlChangeMessage();
-		ProgramChangeMessage getProgramChangeMessage();
-		PitchBendMessage getPitchBendMessage();
+		message_t getType(byte status);
+		NoteOnMessage * getNoteOnMessage();
+		NoteOffMessage * getNoteOffMessage();
+		ATPolyMessage * getATPolyMessage();
+		ControlChangeMessage * getControlChangeMessage();
+		ProgramChangeMessage * getProgramChangeMessage();
+		PitchBendMessage * getPitchBendMessage();
+		ATChannelMessage * getATChannelMessage();
 };
 
 #endif

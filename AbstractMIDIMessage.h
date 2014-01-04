@@ -1,6 +1,8 @@
 #ifndef AbstractMIDIMessage_h
 #define AbstractMIDIMessage_h
 
+#include "Arduino.h"
+
 class AbstractMIDIMessage {
 	protected:
 		byte status;
